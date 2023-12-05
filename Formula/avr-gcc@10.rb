@@ -12,11 +12,6 @@ class AvrGccAT10 < Formula
 
   head "https://gcc.gnu.org/git/gcc.git", branch: "releases/gcc-10"
 
-  bottle do
-    root_url "https://github.com/osx-cross/homebrew-avr/releases/download/avr-gcc@10-10.3.0_2"
-    sha256 big_sur: "bf15f02244c3ee082330690a5a8257a8bcbbc73c83a83a42b58bbaa19f4abf2b"
-  end
-
   # The bottles are built on systems with the CLT installed, and do not work
   # out of the box on Xcode-only systems due to an incorrect sysroot.
   pour_bottle? only_if: :clt_installed
@@ -32,7 +27,7 @@ class AvrGccAT10 < Formula
   depends_on "autoconf" => :build
   depends_on "automake" => :build
 
-  depends_on "avr-binutils"
+  depends_on "starryalley/avr/avr-binutils"
 
   depends_on "gmp"
   depends_on "isl"
@@ -47,9 +42,8 @@ class AvrGccAT10 < Formula
   current_build = build
 
   resource "avr-libc" do
-    url "https://download.savannah.gnu.org/releases/avr-libc/avr-libc-2.1.0.tar.bz2"
-    mirror "https://download-mirror.savannah.gnu.org/releases/avr-libc/avr-libc-2.1.0.tar.bz2"
-    sha256 "0b84cee5c08b5d5cba67c36125e5aaa85251bc9accfba5773bfa87bc34b654e8"
+    url "https://github.com/starryalley/avr-libc/archive/refs/heads/main.tar.gz"
+    sha256 "4d8166c609ff74ab882a5258d5fed722a27db0392941cb4d5e656c1fdfc936fd"
 
     if current_build.with? "ATMega168pbSupport"
       patch do
@@ -88,8 +82,8 @@ class AvrGccAT10 < Formula
 
       --enable-languages=#{languages.join(",")}
 
-      --with-ld=#{Formula["avr-binutils"].opt_bin/"avr-ld"}
-      --with-as=#{Formula["avr-binutils"].opt_bin/"avr-as"}
+      --with-ld=#{Formula["starryalley/avr/avr-binutils"].opt_bin/"avr-ld"}
+      --with-as=#{Formula["starryalley/avr/avr-binutils"].opt_bin/"avr-as"}
 
       --disable-nls
       --disable-libssp
@@ -103,7 +97,7 @@ class AvrGccAT10 < Formula
       --with-system-zlib
 
       --with-pkgversion=#{pkgversion}
-      --with-bugurl=https://github.com/osx-cross/homebrew-avr/issues
+      --with-bugurl=https://github.com/starryalley/homebrew-avr/issues
     ]
 
     # Avoid reference to sed shim
@@ -142,7 +136,7 @@ class AvrGccAT10 < Formula
         puts "Forcing build system to aarch64-apple-darwin."
       end
 
-      system "./bootstrap" if current_build.with? "ATMega168pbSupport"
+      system "./bootstrap" # always do this since we are building from the source
       system "./configure", "--prefix=#{prefix}", "--host=avr"
       system "make", "install"
     end
@@ -177,7 +171,7 @@ class AvrGccAT10 < Formula
 
     system "#{bin}/avr-gcc", "-mmcu=atmega328p", "-Os", "-c", "hello.c", "-o", "hello.c.o", "--verbose"
     system "#{bin}/avr-gcc", "hello.c.o", "-o", "hello.c.elf"
-    system "#{Formula["avr-binutils"].opt_bin}/avr-objcopy", "-O", "ihex", "-j", ".text", "-j", ".data", \
+    system "#{Formula["starryalley/avr/avr-binutils"].opt_bin}/avr-objcopy", "-O", "ihex", "-j", ".text", "-j", ".data", \
       "hello.c.elf", "hello.c.hex"
 
     assert_equal `cat hello.c.hex`, hello_c_hex
@@ -220,7 +214,7 @@ class AvrGccAT10 < Formula
 
     system "#{bin}/avr-g++", "-mmcu=atmega328p", "-Os", "-c", "hello.cpp", "-o", "hello.cpp.o", "--verbose"
     system "#{bin}/avr-g++", "hello.cpp.o", "-o", "hello.cpp.elf"
-    system "#{Formula["avr-binutils"].opt_bin}/avr-objcopy", "-O", "ihex", "-j", ".text", "-j", ".data", \
+    system "#{Formula["starryalley/avr/avr-binutils"].opt_bin}/avr-objcopy", "-O", "ihex", "-j", ".text", "-j", ".data", \
       "hello.cpp.elf", "hello.cpp.hex"
 
     assert_equal `cat hello.cpp.hex`, hello_cpp_hex
