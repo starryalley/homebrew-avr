@@ -1,3 +1,14 @@
+# my mod here
+
+Use avr-libc main branch ([my own fork](https://github.com/starryalley/avr-libc) with commits that use python3 instead of the default python) instead of from release 2.1.0. Obviously release 2.1.0 doesn't include some of the newer chip like Attiny1616.
+
+To install:
+```
+brew tap starryalley/avr
+brew install starryalley/avr/avr-gcc@10
+```
+
+
 # homebrew-avr
 
 This repository contains the GNU AVR Toolchain as formulae for [Homebrew].
